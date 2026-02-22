@@ -14,3 +14,9 @@
                                 │
                                 ▼
                            ( Local LLM ) ──► Generates Grounded Response
+
+
+Core Engineering
+	•	AI/ML Engineering: Optimizes context retrieval pipelines to eliminate external LLM dependency, significantly reducing query hallucinations.
+	•	Data Security: Processes all documents locally, ensuring absolute data privacy for sensitive information.
+	•	Information Retrieval: Efficiently parses and indexes complex document structures for rapid querying.
