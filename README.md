@@ -1,4 +1,4 @@
-### 2. `pdHelp` (Local RAG AI Agent)
+### `pdHelp` (A Local RAG AI Agent)
 ```markdown
 # 🧠 pdHelp: Localized RAG AI Agent
 
@@ -6,7 +6,7 @@
 
 ## 🏗️ RAG Pipeline Architecture
 
-```text
+```
 [ Local PDF Document ] ──► ( Document Parser )
                                 │
                                 ▼
