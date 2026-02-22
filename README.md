@@ -1,4 +1,4 @@
-### `pdHelp` (A Local RAG AI Agent)
+### `pdHelp` 
 ```markdown
 # 🧠 pdHelp: Localized RAG AI Agent
 
