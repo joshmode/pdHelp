@@ -6,7 +6,7 @@
 
 ## 🏗️ RAG Pipeline Architecture
 
-```
+```text
 [ Local PDF Document ] ──► ( Document Parser )
                                 │
                                 ▼
