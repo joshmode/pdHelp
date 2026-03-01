@@ -1,4 +1,3 @@
-import os
 import sys
 from unittest.mock import MagicMock, patch
 
@@ -20,6 +19,7 @@ sys.modules["chromadb.config"] = MagicMock()
 sys.modules["langchain_chroma"] = MagicMock()
 sys.modules["ctransformers"] = MagicMock()
 sys.modules["sentence-transformers"] = MagicMock()
+sys.modules["requests"] = MagicMock()
 
 # now import the module to test
 from app.rag import rag_engine, MODEL_PATH
