@@ -56,7 +56,7 @@ class RagEngine:
                 raise
 
             if self.vector_store is not None and self.llm is not None:
-                print("rag engine launched successfully")
+                print("rag engine initialized successfully")
             else:
                 print("rag engine launched but components are missing")
 
