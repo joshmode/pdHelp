@@ -1,5 +1,6 @@
 import os
 import sys
+import pytest
 from unittest.mock import MagicMock, patch
 
 # --- step 0: ensure app modules are not already loaded ---
@@ -112,4 +113,44 @@ def test_download_model_failure_cleanup():
         mock_remove.assert_called_with(temp_path)
 
         # verify rename was not called
+        mock_rename.assert_not_called()
+
+def test_download_model_non_200_status():
+    """
+    test that if response status code is not 200, an exception is raised
+    and the temporary file is removed.
+    """
+    with patch("requests.get") as mock_get, \
+         patch("builtins.open", new_callable=MagicMock) as mock_open, \
+         patch("os.path.exists") as mock_exists, \
+         patch("os.makedirs"), \
+         patch("os.rename") as mock_rename, \
+         patch("os.remove") as mock_remove:
+
+        # model does not exist
+        def exists_side_effect(path):
+            if path == MODEL_PATH:
+                return False
+            # during cleanup, it checks if temp path exists
+            if path == MODEL_PATH + ".part":
+                return True
+            return True
+
+        mock_exists.side_effect = exists_side_effect
+
+        # mock response with 404
+        mock_response = MagicMock()
+        mock_response.status_code = 404
+        mock_get.return_value = mock_response
+
+        # check that exception is raised
+        with pytest.raises(Exception, match="failed to download model. status: 404"):
+            rag_engine._download_model_if_needed()
+
+        # verify if cleanup happened
+        temp_path = MODEL_PATH + ".part"
+        mock_remove.assert_called_with(temp_path)
+
+        # verify file operations were not called
+        mock_open.assert_not_called()
         mock_rename.assert_not_called()
