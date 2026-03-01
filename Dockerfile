@@ -12,7 +12,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app app/
 
-RUN mkdir -p data/chroma_db models
+RUN mkdir -p data/chroma_db models && \
+    useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app data models
+
+USER appuser
 
 EXPOSE 8000
 
