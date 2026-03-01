@@ -19,6 +19,7 @@ sys.modules["chromadb.config"] = MagicMock()
 sys.modules["langchain_chroma"] = MagicMock()
 sys.modules["ctransformers"] = MagicMock()
 sys.modules["sentence-transformers"] = MagicMock()
+sys.modules["requests"] = MagicMock()
 
 # --- step 2: configure the mocks ---
 mock_doc = MagicMock()
@@ -248,3 +249,36 @@ def test_query_internal_error_handled():
         rag_engine.llm = original_llm
         rag_engine.vector_store = original_vs
         rag.RetrievalQA.from_chain_type.return_value = mock_qa_chain
+
+def test_process_document_empty_fallback():
+    """
+    Test edge case where PyPDFLoader fails to extract text and the
+    fallback text extraction also returns an empty string.
+    """
+    file_path = "dummy/empty_fallback.pdf"
+
+    # mock pypdfloader to return empty raw_pages so it falls back
+    original_loader = rag.PyPDFLoader.return_value
+    mock_loader = MagicMock()
+    mock_loader.load.return_value = []
+    rag.PyPDFLoader.return_value = mock_loader
+
+    # mock _extract_text_with_pypdf to return empty string
+    original_extract = rag_engine._extract_text_with_pypdf
+    rag_engine._extract_text_with_pypdf = MagicMock(return_value="   \n  ")
+
+    try:
+        chunks = rag_engine.process_document(file_path)
+
+        # Should return empty list when fallback text is empty
+        assert chunks == []
+
+        # Ensure it fell back to PyPDF
+        rag_engine._extract_text_with_pypdf.assert_called_once_with(file_path)
+
+        # Ensure splitter wasn't called on empty text
+        rag.RecursiveCharacterTextSplitter.return_value.create_documents.assert_not_called()
+    finally:
+        # Restore mocks
+        rag_engine._extract_text_with_pypdf = original_extract
+        rag.PyPDFLoader.return_value = original_loader
