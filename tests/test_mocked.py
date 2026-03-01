@@ -114,6 +114,22 @@ def test_upload_invalid_file():
     assert response.status_code == 400
     assert response.json() == {"detail": "only pdf files are supported."}
 
+def test_upload_invalid_content_type():
+    response = client.post(
+        "/upload",
+        files={"file": ("test.pdf", b"%PDF-1.4 dummy content", "text/plain")}
+    )
+    assert response.status_code == 400
+    assert response.json() == {"detail": "invalid content type. only pdf files are supported."}
+
+def test_upload_invalid_magic_number():
+    response = client.post(
+        "/upload",
+        files={"file": ("test.pdf", b"NOT_A_PDF content", "application/pdf")}
+    )
+    assert response.status_code == 400
+    assert response.json() == {"detail": "invalid file format. file is not a valid pdf."}
+
 def test_query():
     original_query = rag_engine.query
     rag_engine.query = MagicMock(return_value="The capital of France is Paris.")

@@ -38,6 +38,9 @@ async def upload_document(file: UploadFile = File(...)):
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="only pdf files are supported.")
 
+    if file.content_type and file.content_type != "application/pdf":
+        raise HTTPException(status_code=400, detail="invalid content type. only pdf files are supported.")
+
     temp_file_path = None
     try:
         file.file.seek(0, 2)
@@ -46,6 +49,11 @@ async def upload_document(file: UploadFile = File(...)):
 
         if file_size == 0:
             raise HTTPException(status_code=400, detail="uploaded file is empty.")
+
+        magic_bytes = file.file.read(4)
+        if magic_bytes != b"%PDF":
+            raise HTTPException(status_code=400, detail="invalid file format. file is not a valid pdf.")
+        file.file.seek(0)
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
             shutil.copyfileobj(file.file, temp_file)
