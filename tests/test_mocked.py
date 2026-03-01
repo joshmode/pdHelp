@@ -217,7 +217,7 @@ def test_query_engine_not_initialized():
             json={"text": "Hello?"}
         )
         assert response.status_code == 500
-        assert "error generating answer" in response.json()["detail"]
+        assert "rag engine not initialized" in response.json()["detail"]
     finally:
         rag_engine.llm = original_llm
         rag_engine.vector_store = original_vs

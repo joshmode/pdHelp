@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 import tempfile
@@ -9,6 +10,9 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from app.rag import rag_engine
+
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -61,7 +65,10 @@ async def upload_document(file: UploadFile = File(...)):
         raise
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
+        logger.exception("Unexpected error processing file: %s", temp_file_path)
         raise HTTPException(status_code=500, detail=f"error processing file: {str(e)}")
     finally:
         if temp_file_path and os.path.exists(temp_file_path):
@@ -79,7 +86,14 @@ def query_llm(request: QueryRequest):
     try:
         answer = rag_engine.query(prompt)
         return QueryResponse(reply=answer)
+    except HTTPException:
+        raise
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
+        logger.exception("Unexpected error generating answer for prompt: %s", prompt)
         raise HTTPException(status_code=500, detail=f"error generating answer: {str(e)}")
 
 
