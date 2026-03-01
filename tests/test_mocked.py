@@ -132,6 +132,28 @@ def test_query():
     finally:
         rag_engine.query = original_query
 
+def test_query_empty_prompt():
+    response = client.post(
+        "/query",
+        json={"text": ""}
+    )
+    assert response.status_code == 422
+    assert response.json() == {"detail": "please provide a question."}
+
+    response = client.post(
+        "/query",
+        json={"question": "   "}
+    )
+    assert response.status_code == 422
+    assert response.json() == {"detail": "please provide a question."}
+
+    response = client.post(
+        "/query",
+        json={"query": None}
+    )
+    assert response.status_code == 422
+    assert response.json() == {"detail": "please provide a question."}
+
 def test_rag_logic_mocked():
     """
     test the actual logic inside ragengine using the mocked libraries.
