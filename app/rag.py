@@ -8,6 +8,7 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.llms import CTransformers
 from langchain_chroma import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from pypdf import PdfReader
 
 MODEL_URL = "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
 MODEL_PATH = "models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
@@ -56,9 +57,9 @@ class RagEngine:
                 raise
 
             if self.vector_store is not None and self.llm is not None:
-                print("rag engine launched successfully")
+                print("rag engine initialized successfully")
             else:
-                print("rag engine launched but components are missing")
+                print("rag engine initialized but components are missing")
 
         except Exception as e:
             print(f"rag engine failed to initialize: {e}")
@@ -113,8 +114,6 @@ class RagEngine:
 
     def _extract_text_with_pypdf(self, file_path: str) -> str:
         try:
-            from pypdf import PdfReader
-
             reader = PdfReader(file_path)
             if reader.is_encrypted:
                 reader.decrypt("")
